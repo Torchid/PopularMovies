@@ -79,8 +79,7 @@ public class MainActivityFragment extends Fragment {
                     .build();
 
             try {
-               // URL url = new URL(builtUri.toString());
-                URL url = new URL("https://api.themoviedb.org/3/movie/550?api_key=7584a1f46a5e53997bad82c438715667");
+                URL url = new URL(builtUri.toString());
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
