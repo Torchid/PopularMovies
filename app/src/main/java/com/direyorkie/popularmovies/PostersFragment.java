@@ -14,6 +14,10 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,12 +83,13 @@ public class PostersFragment extends Fragment {
         fetchPosterTask.execute();
     }
 
-    public class FetchPosterTask extends AsyncTask<Void, Void, Void> {
+    public class FetchPosterTask extends AsyncTask<Void, Void, String[]> {
 
         public final String LOG_TAG = FetchPosterTask.class.getSimpleName();
+        public final int numOfPosters = 20;
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected String[] doInBackground(Void... params) {
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
             HttpURLConnection urlConnection = null;
@@ -92,14 +97,15 @@ public class PostersFragment extends Fragment {
 
             // Will contain the raw JSON response as a string.
             String moviePosterJSON = null;
-            //https://api.themoviedb.org/3/movie/550?api_key=***REMOVED***
-            final String POSTER_BASE_URL = "https://api.themoviedb.org/3/movie/550?";
-            final String API_KEY = "***REMOVED***";
+
+            final String POSTER_BASE_URL = "https://api.themoviedb.org/3/discover/movie?";
             final String KEY_PARAM = "api_key";
+            final String SORT_PARAM = "sort_by";
 
             Uri builtUri = Uri.parse(POSTER_BASE_URL)
                     .buildUpon()
-                    .appendQueryParameter(KEY_PARAM, API_KEY)
+                    .appendQueryParameter(KEY_PARAM, "***REMOVED***")
+                    .appendQueryParameter(SORT_PARAM, "popularity.desc")
                     .build();
 
             try {
@@ -152,13 +158,43 @@ public class PostersFragment extends Fragment {
                 }
             }
 
+            try {
+                return getPosterDataFromJson(moviePosterJSON, numOfPosters);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
             return null;
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
+        protected void onPostExecute(String[] strings) {
+            super.onPostExecute(strings);
+            if(strings != null) {
+                moviePostersAdapter.clear();
+                moviePostersAdapter.addAll(strings);
+            }
+        }
 
+        private String[] getPosterDataFromJson(String moviePosterJSON, int numOfPosters) throws JSONException {
+            // These are the names of the JSON objects that need to be extracted.
+            final String TMDb_RESULTS = "results";
+            final String TMDb_POSTER_PATH = "poster_path";
+
+            JSONObject popularMoviesJSON = new JSONObject(moviePosterJSON);
+            JSONArray moviesJSONArray = popularMoviesJSON.getJSONArray(TMDb_RESULTS);
+
+            String[] resultStrs = new String[numOfPosters];
+
+            for(int i = 0; i < moviesJSONArray.length(); i++){
+                String posterPath;
+
+                JSONObject movieJSON = moviesJSONArray.getJSONObject(i);
+                posterPath = movieJSON.getString(TMDb_POSTER_PATH);
+                resultStrs[i] = posterPath;
+            }
+
+            return resultStrs;
         }
     }
 }
