@@ -26,7 +26,6 @@ public class ImageAdapter extends BaseAdapter {
     int resource;
     int imageViewResourceId;
     ArrayList<String> items;
-    private boolean notifyOnChange = true;
 
     //Constructor
     // @param context The current context.
@@ -46,12 +45,12 @@ public class ImageAdapter extends BaseAdapter {
     // @param object The object to add at the end of the array.
     public void add(String item) {
         items.add(item);
-        if (notifyOnChange) this.notifyDataSetChanged();
+        this.notifyDataSetChanged();
     }
 
     public void addAll(ArrayList<String> items) {
         items.addAll(items);
-        if (notifyOnChange) this.notifyDataSetChanged();
+        this.notifyDataSetChanged();
         for(int i = 0; i < items.size(); i++){
             Log.v(LOG_TAG, items.get(i));
         }
@@ -59,11 +58,7 @@ public class ImageAdapter extends BaseAdapter {
 
     public void clear() {
         items.clear();
-        if (notifyOnChange) this.notifyDataSetChanged();
-    }
-
-    public void setNotifyOnChange(boolean notifyOnChange) {
-        this.notifyOnChange = notifyOnChange;
+        this.notifyDataSetChanged();
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -95,5 +90,9 @@ public class ImageAdapter extends BaseAdapter {
     public int getCount() {
         Log.v(LOG_TAG, "Count is: " + items.size());
         return items.size();
+    }
+
+    public void notifyDataSetChanged() {
+        super.notifyDataSetChanged();
     }
 }
