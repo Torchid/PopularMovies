@@ -73,9 +73,7 @@ public class ImageAdapter extends BaseAdapter {
     private View createViewFromResource(int position, View convertView, ViewGroup parent,
                                         int resource) {
 
-        ImageView imageView;
-
-        imageView = (ImageView) inflater.inflate(resource, parent);
+        ImageView imageView = (ImageView) inflater.inflate(resource, parent);
 
         String item = getItem(position);
         Log.v(LOG_TAG, "URL for Picasso" + item);
@@ -93,6 +91,7 @@ public class ImageAdapter extends BaseAdapter {
     }
 
     public int getCount() {
+        Log.v(LOG_TAG, "Count called and returned: " + Integer.toString(items.size()) );
         return items.size();
     }
 }
