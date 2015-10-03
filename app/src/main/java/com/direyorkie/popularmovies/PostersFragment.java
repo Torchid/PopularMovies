@@ -11,8 +11,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.GridView;
+
+import com.direyorkie.popularmovies.com.direyorkie.popularmovies.utilities.ImageAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,12 +26,14 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 //Fragment containing a grid view of popular movie posters
 public class PostersFragment extends Fragment {
 
-    ArrayAdapter<String> moviePostersAdapter;
+    ImageAdapter moviePostersAdapter;
+    private final String POSTER_PATH_BASE = "http://image.tmdb.org/t/p/w185";
 
     public PostersFragment() {
     }
@@ -63,8 +66,7 @@ public class PostersFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_posters, container, false);
 
-        moviePostersAdapter = new ArrayAdapter<String>(getActivity(), R.layout.grid_item_poster,
-                R.id.grid_item_poster, new ArrayList<String>());
+        moviePostersAdapter = new ImageAdapter(getActivity(), R.layout.grid_item_poster, R.id.grid_item_poster, new ArrayList<String>());
 
         GridView gridOfPosters = (GridView) rootView.findViewById(R.id.gridview_posters);
         gridOfPosters.setAdapter(moviePostersAdapter);
@@ -120,7 +122,6 @@ public class PostersFragment extends Fragment {
                 if (inputStream == null) {
                     // Nothing to do.
                     moviePosterJSON = null;
-                    Log.v(LOG_TAG, "No input stream!!!");
                 }
                 reader = new BufferedReader(new InputStreamReader(inputStream));
 
@@ -135,7 +136,6 @@ public class PostersFragment extends Fragment {
                 if (buffer.length() == 0) {
                     // Stream was empty.  No point in parsing.
                     moviePosterJSON = null;
-                    Log.v(LOG_TAG, "Stream was empty!!!");
                 }
                 moviePosterJSON = buffer.toString();
                 Log.v(LOG_TAG, moviePosterJSON);
@@ -144,7 +144,6 @@ public class PostersFragment extends Fragment {
                 // If the code didn't successfully get the weather data, there's no point in attempting
                 // to parse it.
                 moviePosterJSON = null;
-                Log.v(LOG_TAG, "Failed to get weather data!!!");
             } finally{
                 if (urlConnection != null) {
                     urlConnection.disconnect();
@@ -172,7 +171,8 @@ public class PostersFragment extends Fragment {
             super.onPostExecute(strings);
             if(strings != null) {
                 moviePostersAdapter.clear();
-                moviePostersAdapter.addAll(strings);
+                moviePostersAdapter.addAll(new ArrayList(Arrays.asList(strings)));
+                Log.v(LOG_TAG, "Added strings to adapter.");
             }
         }
 
@@ -191,7 +191,7 @@ public class PostersFragment extends Fragment {
 
                 JSONObject movieJSON = moviesJSONArray.getJSONObject(i);
                 posterPath = movieJSON.getString(TMDb_POSTER_PATH);
-                resultStrs[i] = posterPath;
+                resultStrs[i] = POSTER_PATH_BASE + posterPath;
             }
 
             return resultStrs;
