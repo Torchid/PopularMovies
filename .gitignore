@@ -1,6 +1,9 @@
 .gradle
 .DS_Store
 
+#Holds sensitive data
+passwords.xml
+
 # built application files
 *.apk
 *.ap_
