@@ -28,7 +28,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-
 //Fragment containing a grid view of popular movie posters
 public class PostersFragment extends Fragment {
 
