@@ -33,7 +33,7 @@ import java.util.Arrays;
 public class PostersFragment extends Fragment {
 
     ImageAdapter moviePostersAdapter;
-    private final String POSTER_PATH_BASE = "http://image.tmdb.org/t/p/w185";
+    private final String POSTER_PATH_BASE = "http://image.tmdb.org/t/p/w342";
 
     public PostersFragment() {
     }
