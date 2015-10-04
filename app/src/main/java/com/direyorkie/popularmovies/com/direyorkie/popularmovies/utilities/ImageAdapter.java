@@ -94,7 +94,7 @@ public class ImageAdapter extends BaseAdapter {
 
         String item = getItem(position);
         Log.v(LOG_TAG, "URL for Picasso" + item);
-        Picasso.with(context).load(item).into(imageView);
+        Picasso.with(context).load(item).noPlaceholder().into(imageView);
 
         return imageView;
     }
