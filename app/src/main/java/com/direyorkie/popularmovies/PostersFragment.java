@@ -141,7 +141,7 @@ public class PostersFragment extends Fragment {
                 Log.v(LOG_TAG, moviePosterJSON);
             }  catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
-                // If the code didn't successfully get the weather data, there's no point in attempting
+                // If the code didn't successfully get the movie data, there's no point in attempting
                 // to parse it.
                 moviePosterJSON = null;
             } finally{
@@ -172,7 +172,6 @@ public class PostersFragment extends Fragment {
             if(strings != null) {
                 moviePostersAdapter.clear();
                 moviePostersAdapter.addAll(new ArrayList(Arrays.asList(strings)));
-                Log.v(LOG_TAG, "Added strings to adapter.");
             }
         }
 
@@ -183,8 +182,7 @@ public class PostersFragment extends Fragment {
 
             JSONObject popularMoviesJSON = new JSONObject(moviePosterJSON);
             JSONArray moviesJSONArray = popularMoviesJSON.getJSONArray(TMDb_RESULTS);
-
-            String[] resultStrs = new String[numOfPosters];
+            String[] resultStrs = new String[moviesJSONArray.length()];
 
             for(int i = 0; i < moviesJSONArray.length(); i++){
                 String posterPath;

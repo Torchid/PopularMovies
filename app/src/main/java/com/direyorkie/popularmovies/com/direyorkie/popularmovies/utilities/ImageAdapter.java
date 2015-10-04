@@ -26,6 +26,7 @@ public class ImageAdapter extends BaseAdapter {
     int resource;
     int imageViewResourceId;
     ArrayList<String> items;
+    private final Object lock = new Object();
 
     //Constructor
     // @param context The current context.
@@ -44,21 +45,27 @@ public class ImageAdapter extends BaseAdapter {
     // Adds the specified object at the end of the array.
     // @param object The object to add at the end of the array.
     public void add(String item) {
-        items.add(item);
-        this.notifyDataSetChanged();
+        synchronized (lock) {
+            items.add(item);
+            this.notifyDataSetChanged();
+        }
     }
 
     public void addAll(ArrayList<String> items) {
-        items.addAll(items);
-        this.notifyDataSetChanged();
-        for(int i = 0; i < items.size(); i++){
-            Log.v(LOG_TAG, items.get(i));
+
+        synchronized (lock) {
+            this.items.addAll(items);
+            this.notifyDataSetChanged();
         }
     }
 
     public void clear() {
-        items.clear();
-        this.notifyDataSetChanged();
+        synchronized (lock) {
+            if(items != null) {
+                items.clear();
+                this.notifyDataSetChanged();
+            }
+        }
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -67,10 +74,23 @@ public class ImageAdapter extends BaseAdapter {
 
     private View createViewFromResource(int position, View convertView, ViewGroup parent,
                                         int resource) {
-
+        View view;
         ImageView imageView;
 
-        imageView = (ImageView) inflater.inflate(resource, parent);
+        if(convertView == null){
+            view = inflater.inflate(resource, parent, false);
+        }
+        else {
+            view = convertView;
+        }
+
+        if (imageViewResourceId == 0) {
+            //  If no custom field is assigned, assume the whole resource is a TextView
+            imageView = (ImageView) view;
+        } else {
+            //  Otherwise, find the TextView field within the layout
+            imageView = (ImageView) view.findViewById(imageViewResourceId);
+        }
 
         String item = getItem(position);
         Log.v(LOG_TAG, "URL for Picasso" + item);
@@ -87,9 +107,12 @@ public class ImageAdapter extends BaseAdapter {
         return items.get(position);
     }
 
+    public Context getContext() {
+        return context;
+    }
+
     public int getCount() {
-        Log.v(LOG_TAG, "Count is: " + items.size());
-        return items.size();
+        return items!=null ? items.size() : 0;
     }
 
     public void notifyDataSetChanged() {
