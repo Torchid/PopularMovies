@@ -106,7 +106,7 @@ public class PostersFragment extends Fragment {
 
             Uri builtUri = Uri.parse(POSTER_BASE_URL)
                     .buildUpon()
-                    .appendQueryParameter(KEY_PARAM, "***REMOVED***")
+                    .appendQueryParameter(KEY_PARAM, getString(R.string.api_key))
                     .appendQueryParameter(SORT_PARAM, "popularity.desc")
                     .build();
 
