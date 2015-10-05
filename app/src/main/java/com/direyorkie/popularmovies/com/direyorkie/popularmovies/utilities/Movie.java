@@ -10,20 +10,20 @@ public class Movie implements Parcelable {
     public String poster;
     public String title;
     public String data;
-    public String description;
+    public String overview;
 
     public Movie() {
         this.poster = "";
         this.title = "";
         this.data = "";
-        this.description = "";
+        this.overview = "";
     }
 
     public Movie(Parcel in) {
         this.poster = in.readString();
         this.title = in.readString();
         this.data = in.readString();
-        this.description = in.readString();
+        this.overview = in.readString();
     }
 
     @Override
@@ -31,7 +31,7 @@ public class Movie implements Parcelable {
         dest.writeString(this.poster);
         dest.writeString(this.title);
         dest.writeString(this.data);
-        dest.writeString(this.description);
+        dest.writeString(this.overview);
     }
 
     @Override

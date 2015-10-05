@@ -8,10 +8,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.direyorkie.popularmovies.com.direyorkie.popularmovies.utilities.Constants;
 import com.direyorkie.popularmovies.com.direyorkie.popularmovies.utilities.Movie;
+import com.squareup.picasso.Picasso;
 
 
 public class DetailsFragment extends Fragment {
@@ -54,9 +56,11 @@ public class DetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_details, container, false);
 
-        TextView titleText = (TextView) rootView.findViewById(R.id.movie_title);
-        titleText.setText(movie.title);
-
+        ((TextView) rootView.findViewById(R.id.movie_title)).setText(movie.title);
+        ((TextView) rootView.findViewById(R.id.movie_data)).setText(movie.data);
+        ((TextView) rootView.findViewById(R.id.movie_overview)).setText(movie.overview);
+        Picasso.with(getActivity()).load(movie.poster).noPlaceholder().into((ImageView) rootView.findViewById(R.id.movie_poster));
+        
         return rootView;
     }
 

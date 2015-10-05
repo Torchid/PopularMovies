@@ -197,6 +197,9 @@ public class PostersFragment extends Fragment {
             final String TMDb_RESULTS = "results";
             final String TMDb_POSTER_PATH = "poster_path";
             final String TMDb_TITLE = "title";
+            final String TMDb_VOTE_AVERAGE = "vote_average";
+            final String TMDb_RELEASE_DATE = "release_date";
+            final String TMDb_OVERVIEW = "overview";
 
             JSONObject popularMoviesJSON = new JSONObject(moviePosterJSON);
             JSONArray moviesJSONArray = popularMoviesJSON.getJSONArray(TMDb_RESULTS);
@@ -208,6 +211,9 @@ public class PostersFragment extends Fragment {
                 JSONObject movieJSON = moviesJSONArray.getJSONObject(i);
                 newMovie.poster = (POSTER_PATH_BASE + movieJSON.getString(TMDb_POSTER_PATH));
                 newMovie.title = movieJSON.getString(TMDb_TITLE);
+                newMovie.data = movieJSON.getString(TMDb_RELEASE_DATE).substring(0, 4) + "\n" +
+                                movieJSON.getString(TMDb_VOTE_AVERAGE) + "/10";
+                newMovie.overview = movieJSON.getString(TMDb_OVERVIEW);
                 movieData.add(newMovie);
             }
 
