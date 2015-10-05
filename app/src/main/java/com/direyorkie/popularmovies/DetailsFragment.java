@@ -60,7 +60,7 @@ public class DetailsFragment extends Fragment {
         ((TextView) rootView.findViewById(R.id.movie_data)).setText(movie.data);
         ((TextView) rootView.findViewById(R.id.movie_overview)).setText(movie.overview);
         Picasso.with(getActivity()).load(movie.poster).noPlaceholder().into((ImageView) rootView.findViewById(R.id.movie_poster));
-        
+
         return rootView;
     }
 
