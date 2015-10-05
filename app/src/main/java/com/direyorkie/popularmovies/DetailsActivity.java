@@ -5,16 +5,24 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.direyorkie.popularmovies.com.direyorkie.popularmovies.utilities.Constants;
+
 public class DetailsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
+        DetailsFragment detailsFragment = new DetailsFragment();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.details_container, new DetailsFragment())
+                    .add(R.id.details_container, detailsFragment)
                     .commit();
+
+
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(Constants.MOVIES_DETAIL_EXTRA, getIntent().getParcelableExtra(Constants.MOVIES_DETAIL_EXTRA));
+            detailsFragment.setArguments(bundle);
         }
     }
 

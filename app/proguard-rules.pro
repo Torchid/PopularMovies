@@ -15,3 +15,6 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+-keepnames class * implements android.os.Parcelable {
+    public static final ** CREATOR;
+}

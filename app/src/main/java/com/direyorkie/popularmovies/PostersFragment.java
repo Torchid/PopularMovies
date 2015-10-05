@@ -1,5 +1,6 @@
 package com.direyorkie.popularmovies;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,9 +12,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
+import com.direyorkie.popularmovies.com.direyorkie.popularmovies.utilities.Constants;
 import com.direyorkie.popularmovies.com.direyorkie.popularmovies.utilities.ImageAdapter;
+import com.direyorkie.popularmovies.com.direyorkie.popularmovies.utilities.Movie;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,12 +30,13 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 //Fragment containing a grid view of popular movie posters
 public class PostersFragment extends Fragment {
 
+    private final String LOG_TAG = PostersFragment.class.getSimpleName();
     ImageAdapter moviePostersAdapter;
+    ArrayList<Movie> movies = new ArrayList<>();
     private final String POSTER_PATH_BASE = "http://image.tmdb.org/t/p/w780";
 
     public PostersFragment() {
@@ -69,7 +74,14 @@ public class PostersFragment extends Fragment {
 
         GridView gridOfPosters = (GridView) rootView.findViewById(R.id.gridview_posters);
         gridOfPosters.setAdapter(moviePostersAdapter);
-       // gridOfPosters.setItemOnClickListener(new Adapter);
+        gridOfPosters.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.v(LOG_TAG, movies.get(position).title);
+                Intent detailIntent = new Intent(getActivity(), DetailsActivity.class).putExtra(Constants.MOVIES_DETAIL_EXTRA, movies.get(position));
+                startActivity(detailIntent);
+            }
+        });
         return rootView;
     }
 
@@ -84,13 +96,13 @@ public class PostersFragment extends Fragment {
         fetchPosterTask.execute();
     }
 
-    public class FetchPosterTask extends AsyncTask<Void, Void, String[]> {
+    public class FetchPosterTask extends AsyncTask<Void, Void, ArrayList<Movie>> {
 
         public final String LOG_TAG = FetchPosterTask.class.getSimpleName();
         public final int numOfPosters = 20;
 
         @Override
-        protected String[] doInBackground(Void... params) {
+        protected ArrayList<Movie> doInBackground(Void... params) {
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
             HttpURLConnection urlConnection = null;
@@ -157,7 +169,7 @@ public class PostersFragment extends Fragment {
             }
 
             try {
-                return getPosterDataFromJson(moviePosterJSON, numOfPosters);
+                return getMovieDataFromJson(moviePosterJSON, numOfPosters);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -166,32 +178,40 @@ public class PostersFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(String[] strings) {
-            super.onPostExecute(strings);
-            if(strings != null) {
-                moviePostersAdapter.clear();
-                moviePostersAdapter.addAll(new ArrayList(Arrays.asList(strings)));
+        protected void onPostExecute(ArrayList<Movie> moviesFromJSON) {
+            super.onPostExecute(moviesFromJSON);
+            ArrayList<String> moviePosters = new ArrayList<String>();
+            for(Movie mov: moviesFromJSON){
+                moviePosters.add(mov.poster);
             }
+
+            if(moviePosters != null) {
+                moviePostersAdapter.clear();
+                moviePostersAdapter.addAll(moviePosters);
+            }
+            movies = new ArrayList<>(moviesFromJSON);
         }
 
-        private String[] getPosterDataFromJson(String moviePosterJSON, int numOfPosters) throws JSONException {
+        private ArrayList<Movie> getMovieDataFromJson(String moviePosterJSON, int numOfPosters) throws JSONException {
             // These are the names of the JSON objects that need to be extracted.
             final String TMDb_RESULTS = "results";
             final String TMDb_POSTER_PATH = "poster_path";
+            final String TMDb_TITLE = "title";
 
             JSONObject popularMoviesJSON = new JSONObject(moviePosterJSON);
             JSONArray moviesJSONArray = popularMoviesJSON.getJSONArray(TMDb_RESULTS);
-            String[] resultStrs = new String[moviesJSONArray.length()];
+            ArrayList<Movie> movieData = new ArrayList<Movie>();
 
             for(int i = 0; i < moviesJSONArray.length(); i++){
-                String posterPath;
+                Movie newMovie = new Movie();
 
                 JSONObject movieJSON = moviesJSONArray.getJSONObject(i);
-                posterPath = movieJSON.getString(TMDb_POSTER_PATH);
-                resultStrs[i] = POSTER_PATH_BASE + posterPath;
+                newMovie.poster = (POSTER_PATH_BASE + movieJSON.getString(TMDb_POSTER_PATH));
+                newMovie.title = movieJSON.getString(TMDb_TITLE);
+                movieData.add(newMovie);
             }
 
-            return resultStrs;
+            return movieData;
         }
     }
 }
