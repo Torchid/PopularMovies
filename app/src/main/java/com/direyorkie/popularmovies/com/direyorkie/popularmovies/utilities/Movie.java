@@ -11,12 +11,14 @@ public class Movie implements Parcelable {
     public String title;
     public String data;
     public String overview;
+    public double rating;
 
     public Movie() {
         this.poster = "";
         this.title = "";
         this.data = "";
         this.overview = "";
+        this.rating = -1;
     }
 
     public Movie(Parcel in) {
@@ -24,6 +26,7 @@ public class Movie implements Parcelable {
         this.title = in.readString();
         this.data = in.readString();
         this.overview = in.readString();
+        this.rating = in.readDouble();
     }
 
     @Override
@@ -32,6 +35,7 @@ public class Movie implements Parcelable {
         dest.writeString(this.title);
         dest.writeString(this.data);
         dest.writeString(this.overview);
+        dest.writeDouble(this.rating);
     }
 
     @Override
@@ -49,5 +53,4 @@ public class Movie implements Parcelable {
             return new Movie[size];
         }
     };
-
 }

@@ -1,15 +1,15 @@
 package com.direyorkie.popularmovies;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -30,6 +30,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 //Fragment containing a grid view of popular movie posters
 public class PostersFragment extends Fragment {
@@ -47,22 +49,6 @@ public class PostersFragment extends Fragment {
         super.onCreate(savedInstanceState);
         // Add this line in order for this fragment to handle menu events.
         setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        inflater.inflate(R.menu.posters, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -99,7 +85,6 @@ public class PostersFragment extends Fragment {
     public class FetchPosterTask extends AsyncTask<Void, Void, ArrayList<Movie>> {
 
         public final String LOG_TAG = FetchPosterTask.class.getSimpleName();
-        public final int numOfPosters = 20;
 
         @Override
         protected ArrayList<Movie> doInBackground(Void... params) {
@@ -169,7 +154,7 @@ public class PostersFragment extends Fragment {
             }
 
             try {
-                return getMovieDataFromJson(moviePosterJSON, numOfPosters);
+                return getMovieDataFromJson(moviePosterJSON);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -180,7 +165,29 @@ public class PostersFragment extends Fragment {
         @Override
         protected void onPostExecute(ArrayList<Movie> moviesFromJSON) {
             super.onPostExecute(moviesFromJSON);
-            ArrayList<String> moviePosters = new ArrayList<String>();
+            ArrayList<String> moviePosters = new ArrayList<>();
+
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String sortOrder = settings.getString(getString(R.string.preference_sort_key), getString(R.string.preference_sort_default));
+            Resources res = getResources();
+            String[] sortOptions = res.getStringArray(R.array.preference_sort_values);
+
+            //Movies come out sorted by popularity, so if the setting is changed to "rating" it needs
+            //to sort, otherwise they are already sorted correctly
+            if(sortOrder.equals(sortOptions[1])) {
+                Collections.sort(moviesFromJSON, new Comparator<Movie>() {
+                    @Override
+                    //This comparator is set up to sort the ratings in descending
+                    //order because there does not seem to be a simple way to simply
+                    //reverse the results of a custom Comparator
+                    public int compare(Movie lhs, Movie rhs) {
+                        if (lhs.rating > rhs.rating) return -1;
+                        if (lhs.rating < rhs.rating) return 1;
+                        return 0;
+                    }
+                });
+            }
+
             for(Movie mov: moviesFromJSON){
                 moviePosters.add(mov.poster);
             }
@@ -192,7 +199,7 @@ public class PostersFragment extends Fragment {
             movies = new ArrayList<>(moviesFromJSON);
         }
 
-        private ArrayList<Movie> getMovieDataFromJson(String moviePosterJSON, int numOfPosters) throws JSONException {
+        private ArrayList<Movie> getMovieDataFromJson(String moviePosterJSON) throws JSONException {
             // These are the names of the JSON objects that need to be extracted.
             final String TMDb_RESULTS = "results";
             final String TMDb_POSTER_PATH = "poster_path";
@@ -203,7 +210,7 @@ public class PostersFragment extends Fragment {
 
             JSONObject popularMoviesJSON = new JSONObject(moviePosterJSON);
             JSONArray moviesJSONArray = popularMoviesJSON.getJSONArray(TMDb_RESULTS);
-            ArrayList<Movie> movieData = new ArrayList<Movie>();
+            ArrayList<Movie> movieData = new ArrayList<>();
 
             for(int i = 0; i < moviesJSONArray.length(); i++){
                 Movie newMovie = new Movie();
@@ -214,6 +221,7 @@ public class PostersFragment extends Fragment {
                 newMovie.data = movieJSON.getString(TMDb_RELEASE_DATE).substring(0, 4) + "\n" +
                                 movieJSON.getString(TMDb_VOTE_AVERAGE) + "/10";
                 newMovie.overview = movieJSON.getString(TMDb_OVERVIEW);
+                newMovie.rating = movieJSON.getDouble(TMDb_VOTE_AVERAGE);
                 movieData.add(newMovie);
             }
 

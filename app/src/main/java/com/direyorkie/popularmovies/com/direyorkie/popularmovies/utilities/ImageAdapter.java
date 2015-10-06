@@ -107,10 +107,6 @@ public class ImageAdapter extends BaseAdapter {
         return items.get(position);
     }
 
-    public Context getContext() {
-        return context;
-    }
-
     public int getCount() {
         return items!=null ? items.size() : 0;
     }
