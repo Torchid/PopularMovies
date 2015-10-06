@@ -30,8 +30,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 //Fragment containing a grid view of popular movie posters
 public class PostersFragment extends Fragment {
@@ -78,16 +76,19 @@ public class PostersFragment extends Fragment {
     }
 
     public void updatePosters(){
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String sortOrder = settings.getString(getString(R.string.preference_sort_key), getString(R.string.preference_sort_default));
+
         FetchPosterTask fetchPosterTask = new FetchPosterTask();
-        fetchPosterTask.execute();
+        fetchPosterTask.execute(sortOrder);
     }
 
-    public class FetchPosterTask extends AsyncTask<Void, Void, ArrayList<Movie>> {
+    public class FetchPosterTask extends AsyncTask<String, Void, ArrayList<Movie>> {
 
         public final String LOG_TAG = FetchPosterTask.class.getSimpleName();
 
         @Override
-        protected ArrayList<Movie> doInBackground(Void... params) {
+        protected ArrayList<Movie> doInBackground(String... params) {
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
             HttpURLConnection urlConnection = null;
@@ -99,11 +100,22 @@ public class PostersFragment extends Fragment {
             final String POSTER_BASE_URL = "https://api.themoviedb.org/3/discover/movie?";
             final String KEY_PARAM = "api_key";
             final String SORT_PARAM = "sort_by";
+            String sortType;
+
+            Resources res = getResources();
+            String[] sortOptions = res.getStringArray(R.array.preference_sort_values);
+
+            if(params[0].equals(sortOptions[0])){
+                sortType = "popularity.desc";
+            }
+            else{
+                sortType = "vote_average.desc";
+            }
 
             Uri builtUri = Uri.parse(POSTER_BASE_URL)
                     .buildUpon()
                     .appendQueryParameter(KEY_PARAM, getString(R.string.api_key))
-                    .appendQueryParameter(SORT_PARAM, "popularity.desc")
+                    .appendQueryParameter(SORT_PARAM, sortType)
                     .build();
 
             try {
@@ -167,27 +179,6 @@ public class PostersFragment extends Fragment {
             super.onPostExecute(moviesFromJSON);
             ArrayList<String> moviePosters = new ArrayList<>();
 
-            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            String sortOrder = settings.getString(getString(R.string.preference_sort_key), getString(R.string.preference_sort_default));
-            Resources res = getResources();
-            String[] sortOptions = res.getStringArray(R.array.preference_sort_values);
-
-            //Movies come out sorted by popularity, so if the setting is changed to "rating" it needs
-            //to sort, otherwise they are already sorted correctly
-            if(sortOrder.equals(sortOptions[1])) {
-                Collections.sort(moviesFromJSON, new Comparator<Movie>() {
-                    @Override
-                    //This comparator is set up to sort the ratings in descending
-                    //order because there does not seem to be a simple way to simply
-                    //reverse the results of a custom Comparator
-                    public int compare(Movie lhs, Movie rhs) {
-                        if (lhs.rating > rhs.rating) return -1;
-                        if (lhs.rating < rhs.rating) return 1;
-                        return 0;
-                    }
-                });
-            }
-
             for(Movie mov: moviesFromJSON){
                 moviePosters.add(mov.poster);
             }
@@ -221,7 +212,6 @@ public class PostersFragment extends Fragment {
                 newMovie.data = movieJSON.getString(TMDb_RELEASE_DATE).substring(0, 4) + "\n" +
                                 movieJSON.getString(TMDb_VOTE_AVERAGE) + "/10";
                 newMovie.overview = movieJSON.getString(TMDb_OVERVIEW);
-                newMovie.rating = movieJSON.getDouble(TMDb_VOTE_AVERAGE);
                 movieData.add(newMovie);
             }
 
