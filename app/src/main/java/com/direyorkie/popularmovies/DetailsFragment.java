@@ -38,7 +38,9 @@ public class DetailsFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_details, container, false);
 
         ((TextView) rootView.findViewById(R.id.movie_title)).setText(movie.title);
-        ((TextView) rootView.findViewById(R.id.movie_data)).setText(movie.data);
+        ((TextView) rootView.findViewById(R.id.movie_year)).setText(movie.year);
+        ((TextView) rootView.findViewById(R.id.movie_length)).setText(movie.length);
+        ((TextView) rootView.findViewById(R.id.movie_rating)).setText(movie.rating);
         ((TextView) rootView.findViewById(R.id.movie_overview)).setText(movie.overview);
         Picasso.with(getActivity()).load(movie.poster).noPlaceholder().into((ImageView) rootView.findViewById(R.id.movie_poster));
 

@@ -5,6 +5,9 @@
     <string name="title_activity_details">Movie Details</string>
     <string name="title_activity_settings">SettingsActivity</string>
 
+    <string name="button_favourite">MARK AS FAVOURITE</string>
+
+    <!-- Data for settings activity -->
     <string name="preference_sort_label">Sort Order</string>
     <string name="preference_sort_dialog_label">Sort Order</string>
     <string name="preference_sort_key">sort</string>

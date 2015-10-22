@@ -209,8 +209,9 @@ public class PostersFragment extends Fragment {
                 JSONObject movieJSON = moviesJSONArray.getJSONObject(i);
                 newMovie.poster = (POSTER_PATH_BASE + movieJSON.getString(TMDb_POSTER_PATH));
                 newMovie.title = movieJSON.getString(TMDb_TITLE);
-                newMovie.data = movieJSON.getString(TMDb_RELEASE_DATE).substring(0, 4) + "\n" +
-                                movieJSON.getString(TMDb_VOTE_AVERAGE) + "/10";
+                newMovie.year = movieJSON.getString(TMDb_RELEASE_DATE).substring(0, 4);
+                newMovie.length = "120min";
+                newMovie.rating = movieJSON.getString(TMDb_VOTE_AVERAGE) + "/10";
                 newMovie.overview = movieJSON.getString(TMDb_OVERVIEW);
                 movieData.add(newMovie);
             }
